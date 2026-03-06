@@ -90,7 +90,7 @@ export default function App() {
   const [isItSupportOpen, setIsItSupportOpen] = useState(false);
   const [isTechSigOpen, setIsTechSigOpen] = useState(false);
 
-// Modal States 
+  // Modal States
   const [isClearAllModalOpen, setIsClearAllModalOpen] = useState(false);
   const [isClearingAll, setIsClearingAll] = useState(false);
 
@@ -122,9 +122,7 @@ export default function App() {
       db,
       "artifacts",
       appId,
-      "users",
-      user.uid,
-      "maintenance_reports",
+      "shared_maintenance_reports",
     );
 
     const unsubscribe = onSnapshot(
@@ -190,9 +188,7 @@ export default function App() {
         db,
         "artifacts",
         appId,
-        "users",
-        user.uid,
-        "maintenance_reports",
+        "shared_maintenance_reports",
       );
 
       if (currentDocId) {
@@ -201,9 +197,7 @@ export default function App() {
           db,
           "artifacts",
           appId,
-          "users",
-          user.uid,
-          "maintenance_reports",
+          "shared_maintenance_reports",
           currentDocId,
         );
         await updateDoc(docRef, {
@@ -261,19 +255,25 @@ export default function App() {
     setIsClearingAll(true);
     try {
       // ทำการลบข้อมูลทุกรายการที่อยู่ในประวัติ
-      const deletePromises = savedReports.map(report => {
-        const docRef = doc(db, 'artifacts', appId, 'users', user.uid, 'maintenance_reports', report.id);
+      const deletePromises = savedReports.map((report) => {
+        const docRef = doc(
+          db,
+          "artifacts",
+          appId,
+          "shared_maintenance_reports",
+          report.id,
+        );
         return deleteDoc(docRef);
       });
       await Promise.all(deletePromises);
-      
+
       // ล้างข้อมูลในฟอร์มด้วยถ้ากำลังเปิดเอกสารเก่าอยู่
       if (currentDocId) {
         handleClear();
       }
     } catch (err) {
       console.error("Error clearing all history:", err);
-      alert('เกิดข้อผิดพลาดในการล้างประวัติข้อมูล');
+      alert("เกิดข้อผิดพลาดในการล้างประวัติข้อมูล");
     } finally {
       setIsClearingAll(false);
       setIsClearAllModalOpen(false);
@@ -584,7 +584,7 @@ export default function App() {
       </div>
 
       {viewMode === "history" ? (
-      /* History Dashboard View */
+        /* History Dashboard View */
         <div className="max-w-5xl mx-auto bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden print:hidden">
           <div className="p-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
             <h2 className="text-lg font-semibold text-gray-800 flex items-center">
@@ -593,7 +593,7 @@ export default function App() {
             </h2>
             {/* ปุ่มล้างข้อมูลทั้งหมด */}
             {savedReports.length > 0 && (
-              <button 
+              <button
                 onClick={() => setIsClearAllModalOpen(true)}
                 className="flex items-center px-3 py-1.5 bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 rounded-md text-sm font-medium transition-colors border border-red-200"
               >
@@ -738,8 +738,9 @@ export default function App() {
 
           {/* Form Details Grid */}
           <div className="border-b border-gray-400">
-            <div className="flex border-b border-gray-300">
-              <div className="w-1/2 flex items-center border-r border-gray-300">
+            {/* แถวที่ 1: Date & Start Time */}
+            <div className="flex flex-col md:flex-row border-b border-gray-300">
+              <div className="w-full md:w-1/2 flex items-center border-b md:border-b-0 md:border-r border-gray-300">
                 <span className="w-32 px-4 py-2 text-sm font-bold text-gray-800">
                   Date :
                 </span>
@@ -749,11 +750,11 @@ export default function App() {
                     name="date"
                     value={formData.date}
                     onChange={handleInputChange}
-                    className="flex-1 p-2 outline-none text-sm text-gray-600 bg-transparent"
+                    className="flex-1 p-2 outline-none text-sm text-gray-600 bg-transparent w-full"
                   />
                 </div>
               </div>
-              <div className="w-1/2 flex items-center">
+              <div className="w-full md:w-1/2 flex items-center">
                 <span className="w-32 px-4 py-2 text-sm font-bold text-gray-800">
                   Start Time :
                 </span>
@@ -763,14 +764,15 @@ export default function App() {
                     name="startTime"
                     value={formData.startTime}
                     onChange={handleInputChange}
-                    className="flex-1 p-2 outline-none text-sm text-gray-600 bg-transparent"
+                    className="flex-1 p-2 outline-none text-sm text-gray-600 bg-transparent w-full"
                   />
                 </div>
               </div>
             </div>
 
-            <div className="flex border-b border-gray-300">
-              <div className="w-1/2 flex items-center border-r border-gray-300">
+            {/* แถวที่ 2: Customer & Finish Time */}
+            <div className="flex flex-col md:flex-row border-b border-gray-300">
+              <div className="w-full md:w-1/2 flex items-center border-b md:border-b-0 md:border-r border-gray-300">
                 <span className="w-32 px-4 py-2 text-sm font-bold text-gray-800">
                   Customer :
                 </span>
@@ -778,7 +780,7 @@ export default function App() {
                   name="customer"
                   value={formData.customer}
                   onChange={handleInputChange}
-                  className="flex-1 p-2 outline-none text-sm text-gray-600 bg-transparent cursor-pointer"
+                  className="flex-1 p-2 outline-none text-sm text-gray-600 bg-transparent cursor-pointer w-full"
                 >
                   <option value="">-- เลือกบริษัทลูกค้า --</option>
                   <option value="Chiaopao">Chiaopao</option>
@@ -790,7 +792,7 @@ export default function App() {
                   <option value="Klaser">Klaser</option>
                 </select>
               </div>
-              <div className="w-1/2 flex items-center">
+              <div className="w-full md:w-1/2 flex items-center">
                 <span className="w-32 px-4 py-2 text-sm font-bold text-gray-800">
                   Finish Time :
                 </span>
@@ -800,14 +802,15 @@ export default function App() {
                     name="finishTime"
                     value={formData.finishTime}
                     onChange={handleInputChange}
-                    className="flex-1 p-2 outline-none text-sm text-gray-600 bg-transparent"
+                    className="flex-1 p-2 outline-none text-sm text-gray-600 bg-transparent w-full"
                   />
                 </div>
               </div>
             </div>
 
-            <div className="flex">
-              <div className="w-1/2 flex items-center border-r border-gray-300 relative">
+            {/* แถวที่ 3: IT Support & Location */}
+            <div className="flex flex-col md:flex-row">
+              <div className="w-full md:w-1/2 flex items-center border-b md:border-b-0 md:border-r border-gray-300 relative">
                 <span className="w-32 px-4 py-2 text-sm font-bold text-gray-800 shrink-0">
                   IT Support :
                 </span>
@@ -862,7 +865,7 @@ export default function App() {
                   </>
                 )}
               </div>
-              <div className="w-1/2 flex items-center">
+              <div className="w-full md:w-1/2 flex items-center">
                 <span className="w-32 px-4 py-2 text-sm font-bold text-gray-800">
                   Location :
                 </span>
@@ -871,7 +874,7 @@ export default function App() {
                   name="location"
                   value={formData.location}
                   onChange={handleInputChange}
-                  className="flex-1 p-2 outline-none text-sm text-gray-600"
+                  className="flex-1 p-2 outline-none text-sm text-gray-600 w-full"
                 />
               </div>
             </div>
@@ -896,87 +899,89 @@ export default function App() {
             </button>
           </div>
 
-          <table className="w-full text-sm text-left">
-            <thead className="bg-white border-b border-gray-400">
-              <tr>
-                <th className="border-r border-gray-300 p-2 w-16 text-center text-gray-800 font-bold">
-                  NO.
-                </th>
-                <th className="border-r border-gray-300 p-2 w-1/3 text-center text-gray-800 font-bold">
-                  Request Name
-                </th>
-                <th className="p-2 text-center text-gray-800 font-bold">
-                  Description
-                </th>
-                <th
-                  data-html2canvas-ignore="true"
-                  className="w-10 print:hidden"
-                ></th>
-              </tr>
-            </thead>
-            <tbody>
-              {serviceRequests.map((req, index) => (
-                <tr key={req.id} className="border-b border-gray-200">
-                  <td className="border-r border-gray-300 p-2 text-center font-medium align-top pt-3">
-                    {index + 1}
-                  </td>
-                  <td className="border-r border-gray-300 p-0 relative align-top">
-                    <textarea
-                      value={req.name}
-                      onChange={(e) => {
-                        e.target.style.height = "auto";
-                        e.target.style.height = e.target.scrollHeight + "px";
-                        updateServiceRequest(req.id, "name", e.target.value);
-                      }}
-                      ref={(el) => {
-                        if (el) {
-                          el.style.height = "auto";
-                          el.style.height = el.scrollHeight + "px";
-                        }
-                      }}
-                      placeholder="ชื่อผู้แจ้ง"
-                      rows={1}
-                      className="w-full p-2 outline-none bg-transparent placeholder-gray-400 resize-none overflow-hidden block leading-relaxed"
-                    />
-                  </td>
-                  <td className="p-0 relative align-top">
-                    <textarea
-                      value={req.description}
-                      onChange={(e) => {
-                        e.target.style.height = "auto";
-                        e.target.style.height = e.target.scrollHeight + "px";
-                        updateServiceRequest(
-                          req.id,
-                          "description",
-                          e.target.value,
-                        );
-                      }}
-                      ref={(el) => {
-                        if (el) {
-                          el.style.height = "auto";
-                          el.style.height = el.scrollHeight + "px";
-                        }
-                      }}
-                      placeholder="เช่น: เครื่องเปิดไม่ติด, เน็ตหลุดบ่อย..."
-                      rows={1}
-                      className="w-full p-2 outline-none bg-transparent placeholder-gray-400 resize-none overflow-hidden block leading-relaxed"
-                    />
-                  </td>
-                  <td
+          <div className="overflow-x-auto w-full">
+            <table className="w-full text-sm text-left min-w-[600px]">
+              <thead className="bg-white border-b border-gray-400">
+                <tr>
+                  <th className="border-r border-gray-300 p-2 w-16 text-center text-gray-800 font-bold">
+                    NO.
+                  </th>
+                  <th className="border-r border-gray-300 p-2 w-1/3 text-center text-gray-800 font-bold">
+                    Request Name
+                  </th>
+                  <th className="p-2 text-center text-gray-800 font-bold">
+                    Description
+                  </th>
+                  <th
                     data-html2canvas-ignore="true"
-                    className="p-2 text-center print:hidden align-top pt-3"
-                  >
-                    <button
-                      onClick={() => removeServiceRequest(req.id)}
-                      className="text-gray-400 hover:text-red-500 transition-colors"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </td>
+                    className="w-10 print:hidden"
+                  ></th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {serviceRequests.map((req, index) => (
+                  <tr key={req.id} className="border-b border-gray-200">
+                    <td className="border-r border-gray-300 p-2 text-center font-medium align-top pt-3">
+                      {index + 1}
+                    </td>
+                    <td className="border-r border-gray-300 p-0 relative align-top">
+                      <textarea
+                        value={req.name}
+                        onChange={(e) => {
+                          e.target.style.height = "auto";
+                          e.target.style.height = e.target.scrollHeight + "px";
+                          updateServiceRequest(req.id, "name", e.target.value);
+                        }}
+                        ref={(el) => {
+                          if (el) {
+                            el.style.height = "auto";
+                            el.style.height = el.scrollHeight + "px";
+                          }
+                        }}
+                        placeholder="ชื่อผู้แจ้ง"
+                        rows={1}
+                        className="w-full p-2 outline-none bg-transparent placeholder-gray-400 resize-none overflow-hidden block leading-relaxed"
+                      />
+                    </td>
+                    <td className="p-0 relative align-top">
+                      <textarea
+                        value={req.description}
+                        onChange={(e) => {
+                          e.target.style.height = "auto";
+                          e.target.style.height = e.target.scrollHeight + "px";
+                          updateServiceRequest(
+                            req.id,
+                            "description",
+                            e.target.value,
+                          );
+                        }}
+                        ref={(el) => {
+                          if (el) {
+                            el.style.height = "auto";
+                            el.style.height = el.scrollHeight + "px";
+                          }
+                        }}
+                        placeholder="เช่น: เครื่องเปิดไม่ติด, เน็ตหลุดบ่อย..."
+                        rows={1}
+                        className="w-full p-2 outline-none bg-transparent placeholder-gray-400 resize-none overflow-hidden block leading-relaxed"
+                      />
+                    </td>
+                    <td
+                      data-html2canvas-ignore="true"
+                      className="p-2 text-center print:hidden align-top pt-3"
+                    >
+                      <button
+                        onClick={() => removeServiceRequest(req.id)}
+                        className="text-gray-400 hover:text-red-500 transition-colors"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
 
           {/* AI Action Button Wrapper (Ignored in PDF) */}
           <div
@@ -1028,96 +1033,98 @@ export default function App() {
             </button>
           </div>
 
-          <table className="w-full text-sm text-left">
-            <thead className="bg-white border-b border-gray-400">
-              <tr>
-                <th className="border-r border-gray-300 p-2 w-16 text-center text-gray-800 font-bold">
-                  NO.
-                </th>
-                <th className="border-r border-gray-300 p-2 w-1/3 text-center text-gray-800 font-bold">
-                  Computer Name
-                </th>
-                <th className="p-2 text-center text-gray-800 font-bold">
-                  Description
-                </th>
-                <th
-                  data-html2canvas-ignore="true"
-                  className="w-10 print:hidden"
-                ></th>
-              </tr>
-            </thead>
-            <tbody>
-              {serviceReports.map((rep, index) => (
-                <tr key={rep.id} className="border-b border-gray-300">
-                  <td className="border-r border-gray-300 p-2 text-center font-medium align-top pt-4">
-                    {index + 1}
-                  </td>
-                  <td className="border-r border-gray-300 p-0 relative align-top">
-                    <textarea
-                      value={rep.computerName}
-                      onChange={(e) => {
-                        e.target.style.height = "auto";
-                        e.target.style.height = e.target.scrollHeight + "px";
-                        updateServiceReport(
-                          rep.id,
-                          "computerName",
-                          e.target.value,
-                        );
-                      }}
-                      ref={(el) => {
-                        if (el) {
-                          el.style.height = "auto";
-                          el.style.height = el.scrollHeight + "px";
-                        }
-                      }}
-                      placeholder="ชื่อเครื่อง"
-                      rows={1}
-                      className="w-full p-2 outline-none bg-transparent placeholder-gray-400 resize-none overflow-hidden block leading-relaxed mt-1"
-                    />
-                  </td>
-                  <td className="p-0 relative align-top">
-                    <textarea
-                      value={rep.description}
-                      onChange={(e) => {
-                        e.target.style.height = "auto";
-                        e.target.style.height = e.target.scrollHeight + "px";
-                        updateServiceReport(
-                          rep.id,
-                          "description",
-                          e.target.value,
-                        );
-                      }}
-                      ref={(el) => {
-                        if (el) {
-                          el.style.height = "auto";
-                          el.style.height = el.scrollHeight + "px";
-                        }
-                      }}
-                      placeholder="AI จะช่วยสรุปที่นี่ หรือคุณสามารถพิมพ์เองได้..."
-                      rows={1}
-                      className={`w-full min-h-[64px] p-2 outline-none bg-transparent placeholder-gray-400 resize-none overflow-hidden block leading-relaxed ${isGenerating ? "animate-pulse bg-gray-50" : ""}`}
-                    />
-                  </td>
-                  <td
+          <div className="overflow-x-auto w-full">
+            <table className="w-full text-sm text-left min-w-[600px]">
+              <thead className="bg-white border-b border-gray-400">
+                <tr>
+                  <th className="border-r border-gray-300 p-2 w-16 text-center text-gray-800 font-bold">
+                    NO.
+                  </th>
+                  <th className="border-r border-gray-300 p-2 w-1/3 text-center text-gray-800 font-bold">
+                    Computer Name
+                  </th>
+                  <th className="p-2 text-center text-gray-800 font-bold">
+                    Description
+                  </th>
+                  <th
                     data-html2canvas-ignore="true"
-                    className="p-2 text-center print:hidden align-top pt-4"
-                  >
-                    <button
-                      onClick={() => removeServiceReport(rep.id)}
-                      className="text-gray-400 hover:text-red-500 transition-colors"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </td>
+                    className="w-10 print:hidden"
+                  ></th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {serviceReports.map((rep, index) => (
+                  <tr key={rep.id} className="border-b border-gray-300">
+                    <td className="border-r border-gray-300 p-2 text-center font-medium align-top pt-4">
+                      {index + 1}
+                    </td>
+                    <td className="border-r border-gray-300 p-0 relative align-top">
+                      <textarea
+                        value={rep.computerName}
+                        onChange={(e) => {
+                          e.target.style.height = "auto";
+                          e.target.style.height = e.target.scrollHeight + "px";
+                          updateServiceReport(
+                            rep.id,
+                            "computerName",
+                            e.target.value,
+                          );
+                        }}
+                        ref={(el) => {
+                          if (el) {
+                            el.style.height = "auto";
+                            el.style.height = el.scrollHeight + "px";
+                          }
+                        }}
+                        placeholder="ชื่อเครื่อง"
+                        rows={1}
+                        className="w-full p-2 outline-none bg-transparent placeholder-gray-400 resize-none overflow-hidden block leading-relaxed mt-1"
+                      />
+                    </td>
+                    <td className="p-0 relative align-top">
+                      <textarea
+                        value={rep.description}
+                        onChange={(e) => {
+                          e.target.style.height = "auto";
+                          e.target.style.height = e.target.scrollHeight + "px";
+                          updateServiceReport(
+                            rep.id,
+                            "description",
+                            e.target.value,
+                          );
+                        }}
+                        ref={(el) => {
+                          if (el) {
+                            el.style.height = "auto";
+                            el.style.height = el.scrollHeight + "px";
+                          }
+                        }}
+                        placeholder="AI จะช่วยสรุปที่นี่ หรือคุณสามารถพิมพ์เองได้..."
+                        rows={1}
+                        className={`w-full min-h-[64px] p-2 outline-none bg-transparent placeholder-gray-400 resize-none overflow-hidden block leading-relaxed ${isGenerating ? "animate-pulse bg-gray-50" : ""}`}
+                      />
+                    </td>
+                    <td
+                      data-html2canvas-ignore="true"
+                      className="p-2 text-center print:hidden align-top pt-4"
+                    >
+                      <button
+                        onClick={() => removeServiceReport(rep.id)}
+                        className="text-gray-400 hover:text-red-500 transition-colors"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
 
           {/* Footer / Signatures */}
-          <div className="flex bg-white min-h-[160px] mt-auto border-t border-gray-400">
+          <div className="flex flex-col md:flex-row bg-white min-h-[160px] mt-auto border-t border-gray-400">
             {/* Customer Signature */}
-            <div className="w-1/4 border-r border-gray-400 p-4 flex flex-col items-center justify-between">
+            <div className="w-full md:w-1/4 border-b md:border-b-0 md:border-r border-gray-400 p-4 flex flex-col items-center justify-between min-h-[120px]">
               <span className="font-bold text-sm text-gray-800 mt-2 underline">
                 Customer Signature
               </span>
@@ -1127,66 +1134,29 @@ export default function App() {
             </div>
 
             {/* Technician Signature */}
-            <div className="w-1/4 border-r border-gray-400 p-4 flex flex-col items-center justify-between relative">
+            <div className="w-full md:w-1/4 border-b md:border-b-0 md:border-r border-gray-400 p-4 flex flex-col items-center justify-between relative min-h-[120px]">
               <span className="font-bold text-sm text-gray-800 mt-2 underline">
                 Technician Signature
               </span>
 
-              <div
-                className="w-full mt-auto mb-2 cursor-pointer relative"
-                onClick={() => setIsTechSigOpen(!isTechSigOpen)}
-              >
+              <div className="w-full mt-auto mb-2 cursor-pointer relative" onClick={() => setIsTechSigOpen(!isTechSigOpen)}>
                 <div className="min-h-[24px] text-center text-sm text-gray-700 font-medium mb-1">
-                  {(formData.technicianSignature || []).length > 0
-                    ? formData.technicianSignature.join(", ")
-                    : ""}
+                  {(formData.technicianSignature || []).length > 0 ? formData.technicianSignature.join(", ") : ""}
                 </div>
                 <div className="border-b border-dashed border-gray-400 w-full mb-1"></div>
                 {(formData.technicianSignature || []).length === 0 && (
-                  <div className="text-center text-xs text-gray-400 print:hidden mt-1">
-                    (คลิกเพื่อเลือกชื่อ)
-                  </div>
+                  <div className="text-center text-xs text-gray-400 print:hidden mt-1">(คลิกเพื่อเลือกชื่อ)</div>
                 )}
               </div>
 
               {/* Technician Signature Dropdown Menu */}
               {isTechSigOpen && (
                 <>
-                  <div
-                    className="fixed inset-0 z-10"
-                    onClick={() => setIsTechSigOpen(false)}
-                  ></div>
-                  <div className="absolute bottom-[60px] left-[-20%] w-[250px] bg-white border border-gray-300 shadow-lg z-20 rounded-md print:hidden">
-                    {[
-                      "Kittisak kongjaroensuksanti",
-                      "Chatchon Siriphong",
-                      "Teerapol Surasajja",
-                    ].map((name) => (
-                      <label
-                        key={name}
-                        className="flex items-center px-4 py-2 hover:bg-gray-50 cursor-pointer text-sm border-b border-gray-100 last:border-0"
-                      >
-                        <input
-                          type="checkbox"
-                          className="mr-3 w-4 h-4 text-teal-600 rounded border-gray-300 focus:ring-teal-500"
-                          checked={(
-                            formData.technicianSignature || []
-                          ).includes(name)}
-                          onChange={() => {
-                            setFormData((prev) => {
-                              const currentSigs =
-                                prev.technicianSignature || [];
-                              const isSelected = currentSigs.includes(name);
-                              const newTechSig = isSelected
-                                ? currentSigs.filter((n) => n !== name)
-                                : [...currentSigs, name];
-                              return {
-                                ...prev,
-                                technicianSignature: newTechSig,
-                              };
-                            });
-                          }}
-                        />
+                  <div className="fixed inset-0 z-10" onClick={() => setIsTechSigOpen(false)}></div>
+                  <div className="absolute bottom-full left-0 md:bottom-[60px] md:left-[-20%] w-full md:w-[250px] bg-white border border-gray-300 shadow-lg z-20 rounded-md print:hidden">
+                    {["Kittisak kongjaroensuksanti", "Chatchon Siriphong", "Teerapol Surasajja"].map((name) => (
+                      <label key={name} className="flex items-center px-4 py-2 hover:bg-gray-50 cursor-pointer text-sm border-b border-gray-100 last:border-0">
+                        <input type="checkbox" className="mr-3 w-4 h-4 text-teal-600 rounded border-gray-300 focus:ring-teal-500" checked={(formData.technicianSignature || []).includes(name)} onChange={() => { setFormData((prev) => { const currentSigs = prev.technicianSignature || []; const isSelected = currentSigs.includes(name); const newTechSig = isSelected ? currentSigs.filter((n) => n !== name) : [...currentSigs, name]; return { ...prev, technicianSignature: newTechSig }; }); }} />
                         {name}
                       </label>
                     ))}
@@ -1196,17 +1166,14 @@ export default function App() {
             </div>
 
             {/* Remarks */}
-            <div className="w-2/4 p-4 text-[10px] text-gray-700 leading-tight flex items-center">
+            <div className="w-full md:w-2/4 p-4 text-[10px] md:text-xs text-gray-700 leading-tight flex items-center">
               <div>
                 <p className="font-bold mb-1 underline text-black">หมายเหตุ:</p>
                 <p className="text-justify">
                   ทางบริษัทขอสงวนสิทธิ์การให้บริการโดยถ้ามีความผิดพลาดทางระบบปฏิบัติการ
-                  ทางบริษัทจะชดใช้โดยการลงโปรแกรมนั้นๆ
-                  ให้ใหม่ในกรณีที่มีต้นฉบับของโปรแกรมนั้นๆ
-                  และสามารถติดต่อเจ้าของโปรแกรมได้
-                  ความรับผิดชอบนี้ไม่รวมถึงข้อมูลภายในของลูกค้า
-                  ที่ต้องทำการสำรองข้อมูลที่สำคัญก่อนมาใช้บริการ
-                  ในกรณีที่เครื่องเปิดไม่ติด
+                  ทางบริษัทจะชดใช้โดยการลงโปรแกรมนั้นๆ ให้ใหม่ในกรณีที่มีต้นฉบับของโปรแกรมนั้นๆ
+                  และสามารถติดต่อเจ้าของโปรแกรมได้ ความรับผิดชอบนี้ไม่รวมถึงข้อมูลภายในของลูกค้า
+                  ที่ต้องทำการสำรองข้อมูลที่สำคัญก่อนมาใช้บริการ ในกรณีที่เครื่องเปิดไม่ติด
                   ทางบริษัทจะทำการสำรองข้อมูลที่ลูกค้าแจ้งในตำแหน่งที่มองเห็นได้เท่านั้น
                   และจะไม่รับผิดชอบต่อการผิดพลาดของข้อมูลที่สำรองไว้ในทุกกรณี
                 </p>
@@ -1215,29 +1182,37 @@ export default function App() {
           </div>
         </div>
       )}
+
+      
       {/* Custom Modal for Clear All History */}
       {isClearAllModalOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 print:hidden">
           <div className="bg-white rounded-lg p-6 max-w-sm w-full mx-4 shadow-xl">
             <div className="flex items-center text-red-600 mb-4">
               <AlertCircle className="w-6 h-6 mr-2" />
-              <h3 className="text-lg font-bold text-gray-900">ยืนยันการล้างข้อมูล</h3>
+              <h3 className="text-lg font-bold text-gray-900">
+                ยืนยันการล้างข้อมูล
+              </h3>
             </div>
-            <p className="text-gray-600 mb-6">คุณต้องการล้างประวัติบันทึกทั้งหมดใช่หรือไม่?</p>
+            <p className="text-gray-600 mb-6">
+              คุณต้องการล้างประวัติบันทึกทั้งหมดใช่หรือไม่?
+            </p>
             <div className="flex justify-end space-x-3">
-              <button 
+              <button
                 onClick={() => setIsClearAllModalOpen(false)}
                 disabled={isClearingAll}
                 className="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md font-medium transition-colors"
               >
                 ไม่
               </button>
-              <button 
+              <button
                 onClick={confirmClearAllHistory}
                 disabled={isClearingAll}
                 className="px-4 py-2 text-white bg-red-600 hover:bg-red-700 rounded-md font-medium flex items-center transition-colors"
               >
-                {isClearingAll ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
+                {isClearingAll ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : null}
                 ใช่
               </button>
             </div>
